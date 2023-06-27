@@ -1,6 +1,7 @@
 package com.example.demo.DTO;
 
 import com.example.demo.models.Goods;
+import com.example.demo.models.Seller;
 import com.example.demo.utils.Category;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
@@ -25,6 +26,9 @@ public class DTOGood {
     private double price;
     @NotNull
     private Category category;
+
+    private Seller seller;
+
 
     public static DTOGood convertToDTO(Goods goods){
         return modelMapper.map(goods, DTOGood.class);

@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
 import com.example.demo.DTO.DTOGood;
+import com.example.demo.models.FeedBack;
 import com.example.demo.models.Goods;
 import com.example.demo.repo.GoodsRepository;
 import com.example.demo.utils.Category;
@@ -54,5 +55,21 @@ public class GoodsService {
 
     public void delete(long id) {
         goodsRepository.deleteById(id);
+    }
+
+    public void addRate(long id, FeedBack feedBack) {
+        Optional<Goods> optional = goodsRepository.findById(id);
+        Goods goods = optional.orElseThrow(() -> new RuntimeException("Товар с данным ID не найден"));
+        feedBack.setGoods(goods);
+        goods.getListFeedbacks().add(feedBack);
+        System.out.println(goods.getListFeedbacks());
+        goodsRepository.save(goods);
+        System.out.println(goods.getListFeedbacks());
+    }
+
+    public List<FeedBack> findAllFeedbacks(long id) {
+        Optional<Goods> optional = goodsRepository.findById(id);
+        Goods goods = optional.orElseThrow(() -> new RuntimeException("Товар с данным ID не найден"));
+        return goods.getListFeedbacks();
     }
 }

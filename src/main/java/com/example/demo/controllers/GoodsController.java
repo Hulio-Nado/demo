@@ -2,6 +2,7 @@ package com.example.demo.controllers;
 
 import com.example.demo.DTO.DTOGood;
 import com.example.demo.DTO.DTOSearch;
+import com.example.demo.models.FeedBack;
 import com.example.demo.services.GoodsService;
 import com.example.demo.utils.Category;
 import jakarta.validation.Valid;
@@ -12,12 +13,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/good")
 // @RequiredArgsConstructor
 public class GoodsController {
     private final GoodsService goodsService;
 
-    //посмотреть товары продавца
+    //посмотреть товары продавца(*)
     //оставлять отзыв функционал, админ - блокировать продавца или один товар продавца
     //положить в корзину, удалить из корзины, изменить количество товара в корзине,
     //подкатегории, хештеги - поиск по ним, поиск по названиЮ, по цене фильтрация, сортировка (различная)
@@ -59,23 +60,16 @@ public class GoodsController {
         return ResponseEntity.ok(list);
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<?> createGood(@Valid @RequestBody DTOGood goodToCreate){
-        goodsService.save(DTOGood.convertToGoods(goodToCreate));
-        return ResponseEntity.ok().body("Товар создан");
+    @PostMapping(value = "/{id}/feedback")
+    public ResponseEntity<?> rateGood(@PathVariable long id, @RequestBody FeedBack feedBack){
+        System.out.println(feedBack);
+        goodsService.addRate(id, feedBack);
+        return showAllFeedbacksByGoodsID(id);
     }
 
-
-    @PatchMapping("/update/{id}")
-    public ResponseEntity<?> update(@PathVariable long id, @Valid @RequestBody DTOGood goodToUpdate){
-        goodsService.update(id, goodToUpdate);
-        return ResponseEntity.ok().body("Товар обновлен");
+    @GetMapping("/{id}/allFeedbacks")
+    public ResponseEntity<?> showAllFeedbacksByGoodsID(@PathVariable long id) {
+        List<FeedBack> list = goodsService.findAllFeedbacks(id);
+        return ResponseEntity.ok(list);
     }
-
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteOneGood(@PathVariable long id){
-        goodsService.delete(id);
-        return ResponseEntity.ok().body("Товар удален");
-    }
-
 }

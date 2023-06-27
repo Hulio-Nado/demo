@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Cascade;
 
 import java.util.List;
 
@@ -31,6 +32,7 @@ public class Goods {
 
     @Column
     private double price;
+    //comment
 
     @Enumerated(value = EnumType.STRING)
     private Category category;
@@ -38,9 +40,13 @@ public class Goods {
     @OneToMany(mappedBy = "goods_id")
     private List<Charackteristics> list;
 
+    @OneToMany(mappedBy = "goods")
+    @Cascade(value = org.hibernate.annotations.CascadeType.SAVE_UPDATE)
+    private List<FeedBack> listFeedbacks;
+
     @ManyToOne
-    @JoinColumn(name = "owner_id", referencedColumnName = "id")
-    private Seller owner;
+    @JoinColumn(name = "seller_id", referencedColumnName = "id")
+    private Seller seller;
 
     @Override
     public String toString() {

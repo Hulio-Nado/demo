@@ -24,7 +24,7 @@ public class Seller {
     private int sumOfRates;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "seller_id")
+    @OneToMany(mappedBy = "seller")
     private List<Goods> products;
 }
 
