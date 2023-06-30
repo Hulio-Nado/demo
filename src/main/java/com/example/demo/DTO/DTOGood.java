@@ -29,6 +29,7 @@ public class DTOGood {
 
     private Seller seller;
 
+    private double averageRate;
 
     public static DTOGood convertToDTO(Goods goods){
         return modelMapper.map(goods, DTOGood.class);

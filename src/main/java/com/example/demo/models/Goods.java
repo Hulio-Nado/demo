@@ -6,9 +6,11 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.Cascade;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table
@@ -32,7 +34,12 @@ public class Goods {
 
     @Column
     private double price;
-    //comment
+
+    @Column
+    private double rate;
+
+    @Column
+    private int countRates;
 
     @Enumerated(value = EnumType.STRING)
     private Category category;
@@ -41,7 +48,7 @@ public class Goods {
     private List<Charackteristics> list;
 
     @OneToMany(mappedBy = "goods")
-    @Cascade(value = org.hibernate.annotations.CascadeType.SAVE_UPDATE)
+    @Cascade(value = org.hibernate.annotations.CascadeType.ALL)
     private List<FeedBack> listFeedbacks;
 
     @ManyToOne
@@ -54,7 +61,10 @@ public class Goods {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", price=" + price +
+                ", category=" + category +
                 ", list=" + list +
+                ", listFeedbacks=" + listFeedbacks +
+                ", seller=" + seller +
                 '}';
     }
 }

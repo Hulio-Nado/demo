@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/good")
@@ -19,7 +20,7 @@ public class GoodsController {
     private final GoodsService goodsService;
 
     //посмотреть товары продавца(*)
-    //оставлять отзыв функционал, админ - блокировать продавца или один товар продавца
+    //админ - блокировать продавца или один товар продавца
     //положить в корзину, удалить из корзины, изменить количество товара в корзине,
     //подкатегории, хештеги - поиск по ним, поиск по названиЮ, по цене фильтрация, сортировка (различная)
     //
@@ -71,5 +72,15 @@ public class GoodsController {
     public ResponseEntity<?> showAllFeedbacksByGoodsID(@PathVariable long id) {
         List<FeedBack> list = goodsService.findAllFeedbacks(id);
         return ResponseEntity.ok(list);
+    }
+
+    @GetMapping("/{id}/average")
+    public ResponseEntity<?> averageRate(@PathVariable long id) {
+        List<FeedBack> list = goodsService.findAllFeedbacks(id);
+        double sum = 0;
+        for(FeedBack feedBack : list){
+            sum+= feedBack.getRate();
+        }
+        return ResponseEntity.ok(sum/list.size());
     }
 }
