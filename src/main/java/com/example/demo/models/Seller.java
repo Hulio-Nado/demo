@@ -1,5 +1,6 @@
 package com.example.demo.models;
 
+import com.example.demo.DTO.DTORegistration;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -11,13 +12,23 @@ import java.util.List;
 @Table
 @Setter
 @Getter
-public class Seller {
+public class Seller extends DTORegistration {
     @Id
     @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @Column
+    private String username;
+    @Column
+    private String password;
+    @Column
+    private final String role = "SELLER";
+    @Column
     private String companyName;
+    @Column
+    private String address;
+    @Column
+    private String email;
     @Column
     private double rate;
     @Column

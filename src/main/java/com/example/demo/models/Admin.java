@@ -8,11 +8,16 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table
-public class Admin extends User{
-
+public class Admin{
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
     @Column
-    private String name;
-
+    private String username;
     @Column
-    private String email;
+    private String password;
+    @Column
+    private String role;
+    /*@Column
+    private String email;*/
 }

@@ -8,16 +8,48 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+
+    public SecurityConfig(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
+
+    private final UserDetailsService userDetailsService;
     @Bean
     public AuthenticationManager manager(HttpSecurity http) throws Exception{
         AuthenticationManagerBuilder authenticationManagerBuilder = http
                 .getSharedObject(AuthenticationManagerBuilder.class);
         authenticationManagerBuilder.userDetailsService(userDetailsService);
         return authenticationManagerBuilder.build();
+    }
+
+    @Bean
+    public BCryptPasswordEncoder getPasswordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(authorize ->
+                        authorize.requestMatchers("/login", "/client/register",
+                                        "/seller/register", "/good/all")
+                                .permitAll())
+                                /*.anyRequest()
+                                .authenticated())*/
+                .formLogin(formlogin -> formlogin.loginProcessingUrl("/process_login")
+                        .defaultSuccessUrl("/good/all", true)
+                        .failureUrl("/login?error"))
+                .logout(logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/login"));
+
+        return http.build();
     }
 }

@@ -1,6 +1,7 @@
 package com.example.demo.models;
 
 
+import com.example.demo.DTO.DTORegistration;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +12,7 @@ import java.util.List;
 @Setter
 @Entity
 @Table
-public class Client {
+public class Client extends DTORegistration {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -20,7 +21,7 @@ public class Client {
     @Column
     private char sex;
     @Column
-    private String login;
+    private String username;
     @Column
     private String password;
     @Column
@@ -31,6 +32,8 @@ public class Client {
     private boolean hasACard;
     @Column
     private int card;
+    @Column
+    private String role = "CLIENT";
 
     @OneToMany(mappedBy = "client")
     private List<FeedBack> listFeedbacks;

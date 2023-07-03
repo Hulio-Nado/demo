@@ -1,5 +1,7 @@
 package com.example.demo.security;
 
+import com.example.demo.DTO.DTORegistration;
+import com.example.demo.services.SellerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,11 +14,11 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class UserDetailsService implements org.springframework.security.core.userdetails.UserDetailsService {
 
-    private final UserService userService;
+    private final SellerService sellerService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userService.findByUsernameOrThrow(username);
+        DTORegistration user = sellerService.findByUsernameOrThrow(username);
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
     }
