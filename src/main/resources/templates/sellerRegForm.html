@@ -2,12 +2,12 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Registration</title>
+    <title>Registration form for sellers</title>
 </head>
 <body>
 
-<form name="f" th:method="POST" th:action="@{/auth/registration}" th:object="${person}">
-    <!--<form name="f" th:method="POST" th:action="@{/auth/registration}" th:object="${person}">-->
+<form name="f" th:method="POST" th:action="@{/seller/reg}" th:object="${seller}">
+
     <label for="username">Enter username: </label>
     <input type="text" th:field="*{username}" id="username"/>
     <div th:if="${#fields.hasErrors('username')}" style="color:red" th:errors="*{username}">Name Error</div>
@@ -18,6 +18,9 @@
     <br/>
     <label for="password">Enter password: </label>
     <input type="password" th:field="*{password}" id="password"/>
+    <br/>
+    <label for="address">Enter address: </label>
+    <input type="text" th:field="*{address}" id="address"/>
     <br/>
     <input type="submit" value="Register!"/>
 

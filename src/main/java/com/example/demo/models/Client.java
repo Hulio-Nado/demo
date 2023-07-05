@@ -6,20 +6,17 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Getter
 @Setter
 @Entity
 @Table
-public class Client extends DTORegistration {
+public class Client  {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @Column
-    private String name;
-    @Column
-    private char sex;
     @Column
     private String username;
     @Column
@@ -37,5 +34,13 @@ public class Client extends DTORegistration {
 
     @OneToMany(mappedBy = "client")
     private List<FeedBack> listFeedbacks;
-    //private Basket basket;
+
+    @Override
+    public String toString() {
+        return "Client{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
 }

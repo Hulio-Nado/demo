@@ -43,5 +43,6 @@ public class DTORegistration {
 
         return client;
     }
+
 }
 //это входящие даннык в наше приложение, поэтому мы тут валидируем данные

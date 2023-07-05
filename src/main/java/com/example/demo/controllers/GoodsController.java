@@ -34,7 +34,6 @@ public class GoodsController {
     public ResponseEntity<?> showAllGoods(){
         List<DTOGood> list = goodsService.findAll();
         return ResponseEntity.ok(list);
-        //обертка
     }
 
     @GetMapping("/{id}")

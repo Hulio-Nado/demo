@@ -4,9 +4,11 @@ import com.example.demo.DTO.DTORegistration;
 import com.example.demo.models.Client;
 import com.example.demo.models.Seller;
 import com.example.demo.repo.ClientRepository;
+import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -15,9 +17,11 @@ import java.util.Optional;
 public class ClientService {
 
     private final ClientRepository repository;
+    private final BCryptPasswordEncoder encoder;
 
-    public ClientService(ClientRepository repository) {
+    public ClientService(ClientRepository repository, BCryptPasswordEncoder encoder) {
         this.repository = repository;
+        this.encoder = encoder;
     }
 
     public boolean isPresent(Long id) {
@@ -28,15 +32,16 @@ public class ClientService {
     }
 
     public String save(DTORegistration request) {
-        repository.save(request.convertToClient());
-
+        Client client = request.convertToClient();
+        client.setPassword(encoder.encode(request.getPassword()));
+        repository.save(client);
         return "Registration successful";
     }
 
     public String update(DTORegistration user) {
         Client client = getCurrentUser();
         client.setUsername(user.getUsername());
-        client.setPassword(user.getPassword());
+        client.setPassword(encoder.encode(user.getPassword()));
         client.setAddress(user.getAddress());
         client.setEmail(user.getEmail());
         repository.save(client);

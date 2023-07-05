@@ -1,33 +1,57 @@
 package com.example.demo.controllers;
 
 import com.example.demo.DTO.DTOGood;
+import com.example.demo.DTO.DTORegistration;
 import com.example.demo.services.GoodsService;
+import com.example.demo.services.SellerService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@Controller
 @RequestMapping("/seller")
 public class SellerController {
     private final GoodsService goodsService;
+    private final SellerService sellerService;
 
-    public SellerController(GoodsService goodsService) {
+    public SellerController(GoodsService goodsService, SellerService sellerService) {
         this.goodsService = goodsService;
+        this.sellerService = sellerService;
     }
 
+    @GetMapping("/reg")
+    public String registration(@ModelAttribute("seller") DTORegistration request){
+        return "sellerRegForm.html";
+    }
+
+    @ResponseBody
+    @PostMapping("/reg")
+    public ResponseEntity<?> registerUser(@Valid DTORegistration request) {
+        return ResponseEntity.ok(sellerService.save(request));
+    }
+
+    @ResponseBody
+    @PatchMapping
+    public ResponseEntity<?> updateUser(@RequestBody DTORegistration request) {
+        return ResponseEntity.ok(sellerService.update(request));
+    }
+
+    @ResponseBody
     @PostMapping("/create")
     public ResponseEntity<?> createGood(@Valid @RequestBody DTOGood goodToCreate){
         goodsService.save(DTOGood.convertToGoods(goodToCreate));
         return ResponseEntity.ok().body("Товар создан");
     }
 
-
+    @ResponseBody
     @PatchMapping("/update/{id}")
     public ResponseEntity<?> updateGood(@PathVariable long id, @Valid @RequestBody DTOGood goodToUpdate){
         goodsService.update(id, goodToUpdate);
         return ResponseEntity.ok().body("Товар обновлен");
     }
 
+    @ResponseBody
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteOneGood(@PathVariable long id){
         goodsService.delete(id);

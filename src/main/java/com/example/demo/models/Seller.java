@@ -12,7 +12,7 @@ import java.util.List;
 @Table
 @Setter
 @Getter
-public class Seller extends DTORegistration {
+public class Seller{
     @Id
     @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,5 +37,14 @@ public class Seller extends DTORegistration {
     @JsonIgnore
     @OneToMany(mappedBy = "seller")
     private List<Goods> products;
+
+    @Override
+    public String toString() {
+        return "Seller{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", companyName='" + companyName + '\'' +
+                '}';
+    }
 }
 

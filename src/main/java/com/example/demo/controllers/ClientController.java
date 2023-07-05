@@ -3,7 +3,6 @@ package com.example.demo.controllers;
 import com.example.demo.DTO.DTORegistration;
 import com.example.demo.services.ClientService;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -17,14 +16,15 @@ public class ClientController {
         this.clientService = clientService;
     }
 
-    @GetMapping("/register")
+    @GetMapping("/reg")
     public String registration(@ModelAttribute("person") DTORegistration request){
-        return "registrationForm";
+        return "regform.html";
     }
 
     @ResponseBody
-    @PostMapping("/register")
+    @PostMapping("/reg")
     public ResponseEntity<?> registerUser(@Valid DTORegistration request) {
+        System.out.println(request);
         return ResponseEntity.ok(clientService.save(request));
     }
 

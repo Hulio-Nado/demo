@@ -18,10 +18,12 @@ import java.util.Set;
 public class GoodsService {
     private final GoodsRepository goodsRepository;
     private final FeedBackRepository feedBackRepository;
+    private final SellerService sellerService;
 
-    public GoodsService(GoodsRepository goodsRepository, FeedBackRepository feedBackRepository) {
+    public GoodsService(GoodsRepository goodsRepository, FeedBackRepository feedBackRepository, SellerService sellerService) {
         this.goodsRepository = goodsRepository;
         this.feedBackRepository = feedBackRepository;
+        this.sellerService = sellerService;
     }
 
     public List<DTOGood> findAll() {
@@ -49,6 +51,7 @@ public class GoodsService {
     public void save(Goods goods) {
         goods.setRate(0);
         goods.setCountRates(0);
+        goods.setSeller(sellerService.getCurrentUser());
         goodsRepository.save(goods);
     }
 

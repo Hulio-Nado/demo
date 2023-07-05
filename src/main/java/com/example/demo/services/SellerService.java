@@ -4,6 +4,10 @@ import com.example.demo.DTO.DTORegistration;
 import com.example.demo.models.Client;
 import com.example.demo.models.Seller;
 import com.example.demo.repo.SellerRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -12,9 +16,11 @@ import java.util.Optional;
 public class SellerService {
 
     private final SellerRepository repository;
+    private final BCryptPasswordEncoder encoder;
 
-    public SellerService(SellerRepository repository) {
+    public SellerService(SellerRepository repository, BCryptPasswordEncoder encoder) {
         this.repository = repository;
+        this.encoder = encoder;
     }
 
     public boolean isPresent(Long id) {
@@ -24,23 +30,32 @@ public class SellerService {
         } else return false;
     }
 
-    public String save(DTORegistration request, String role) {
-        //sellerRepository.save()
+    public String save(DTORegistration request) {
+        Seller seller = request.convertToSeller();
+        seller.setPassword(encoder.encode(request.getPassword()));
+        repository.save(seller);
         return "Registration successful";
     }
 
-    public void update(Long id, DTORegistration user) {
-        Optional<Seller> optional = repository.findById(id);
-        DTORegistration user1 = optional.orElseThrow(() -> new RuntimeException("Пользователь с данным ID не найден"));//лямбда
-        /*user.setUsername(user1.getUsername());
-        user.setPassword(user1.getPassword());
-
-        userRepository.save(user);*/
+    public String update(DTORegistration user) {
+        Seller seller = getCurrentUser();
+        seller.setUsername(user.getUsername());
+        seller.setPassword(encoder.encode(user.getPassword()));
+        seller.setAddress(user.getAddress());
+        seller.setEmail(user.getEmail());
+        repository.save(seller);
+        return "Update successful";
     }
 
-    public DTORegistration findByUsernameOrThrow(String username) {
+    public Seller getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        return findByUsernameOrThrow(userDetails.getUsername());
+    }
+
+    public Seller findByUsernameOrThrow(String username) {
         Optional<Seller> optional = repository.findByUsername(username);
-        return null;
+        return optional.orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     //методы сервиса и вызов методов бд
