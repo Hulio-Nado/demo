@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
 import com.example.demo.DTO.DTORegistration;
+import com.example.demo.DTO.DTOUpdate;
 import com.example.demo.models.Client;
 import com.example.demo.models.Seller;
 import com.example.demo.repo.SellerRepository;
@@ -37,14 +38,23 @@ public class SellerService {
         return "Registration successful";
     }
 
-    public String update(DTORegistration user) {
+    public String update(DTOUpdate user) {
         Seller seller = getCurrentUser();
-        seller.setUsername(user.getUsername());
-        seller.setPassword(encoder.encode(user.getPassword()));
-        seller.setAddress(user.getAddress());
-        seller.setEmail(user.getEmail());
+        if(user.getUsername() != null){
+            seller.setUsername(user.getUsername());
+        }
+        if(user.getPassword() != null){
+            seller.setPassword(encoder.encode(user.getPassword()));
+        }
+        if(user.getEmail() != null){
+            seller.setEmail(user.getEmail());
+        }
+        if(user.getAddress() != null){
+            seller.setAddress(user.getAddress());
+        }
         repository.save(seller);
         return "Update successful";
+        //сделать так чтобы обновлять только то что придет - не было налов!!!
     }
 
     public Seller getCurrentUser() {

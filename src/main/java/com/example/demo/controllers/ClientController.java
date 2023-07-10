@@ -1,9 +1,11 @@
 package com.example.demo.controllers;
 
 import com.example.demo.DTO.DTORegistration;
+import com.example.demo.DTO.DTOUpdate;
 import com.example.demo.services.ClientService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +32,9 @@ public class ClientController {
 
     @ResponseBody
     @PatchMapping
-    public ResponseEntity<?> updateUser(@RequestBody DTORegistration request) {
+    @Secured("CLIENT")
+    public ResponseEntity<?> updateUser(@RequestBody DTOUpdate request) {
+        System.out.println(request);
         return ResponseEntity.ok(clientService.update(request));
     }
 }

@@ -2,6 +2,7 @@ package com.example.demo.models;
 
 import com.example.demo.DTO.DTOGood;
 import com.example.demo.utils.Category;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -51,6 +52,7 @@ public class Goods {
     @Cascade(value = org.hibernate.annotations.CascadeType.ALL)
     private List<FeedBack> listFeedbacks;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "seller_id", referencedColumnName = "id")
     private Seller seller;
@@ -64,7 +66,7 @@ public class Goods {
                 ", category=" + category +
                 ", list=" + list +
                 ", listFeedbacks=" + listFeedbacks +
-                ", seller=" + seller +
+                ", seller=" + seller.getUsername() +
                 '}';
     }
 }

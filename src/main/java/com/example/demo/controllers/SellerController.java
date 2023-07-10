@@ -2,10 +2,13 @@ package com.example.demo.controllers;
 
 import com.example.demo.DTO.DTOGood;
 import com.example.demo.DTO.DTORegistration;
+import com.example.demo.DTO.DTOUpdate;
 import com.example.demo.services.GoodsService;
 import com.example.demo.services.SellerService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,12 +36,14 @@ public class SellerController {
 
     @ResponseBody
     @PatchMapping
-    public ResponseEntity<?> updateUser(@RequestBody DTORegistration request) {
+    @Secured("SELLER")
+    public ResponseEntity<?> updateUser(@RequestBody DTOUpdate request) {
         return ResponseEntity.ok(sellerService.update(request));
     }
 
     @ResponseBody
     @PostMapping("/create")
+    @Secured("SELLER")
     public ResponseEntity<?> createGood(@Valid @RequestBody DTOGood goodToCreate){
         goodsService.save(DTOGood.convertToGoods(goodToCreate));
         return ResponseEntity.ok().body("Товар создан");
@@ -46,6 +51,7 @@ public class SellerController {
 
     @ResponseBody
     @PatchMapping("/update/{id}")
+    @Secured("SELLER")
     public ResponseEntity<?> updateGood(@PathVariable long id, @Valid @RequestBody DTOGood goodToUpdate){
         goodsService.update(id, goodToUpdate);
         return ResponseEntity.ok().body("Товар обновлен");
@@ -53,6 +59,7 @@ public class SellerController {
 
     @ResponseBody
     @DeleteMapping("/delete/{id}")
+    @Secured("SELLER")
     public ResponseEntity<?> deleteOneGood(@PathVariable long id){
         goodsService.delete(id);
         return ResponseEntity.ok().body("Товар удален");

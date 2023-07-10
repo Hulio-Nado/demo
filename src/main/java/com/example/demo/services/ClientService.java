@@ -1,9 +1,11 @@
 package com.example.demo.services;
 
 import com.example.demo.DTO.DTORegistration;
+import com.example.demo.DTO.DTOUpdate;
 import com.example.demo.models.Client;
 import com.example.demo.models.Seller;
 import com.example.demo.repo.ClientRepository;
+import com.example.demo.utils.exceptions.ClientNotCreatedException;
 import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,22 +35,43 @@ public class ClientService {
 
     public String save(DTORegistration request) {
         Client client = request.convertToClient();
+        checkFromDB(client);
         client.setPassword(encoder.encode(request.getPassword()));
         repository.save(client);
         return "Registration successful";
     }
 
-    public String update(DTORegistration user) {
+    private void checkFromDB(Client client) {
+        Optional<Client> clientFromDBbyUsername = repository.findByUsername(client.getUsername());
+        if(clientFromDBbyUsername.isPresent()){
+            throw new ClientNotCreatedException("User with this username already exists");
+        }
+        Optional<Client> clientFromDBbyEmail = repository.findByEmail(client.getEmail());
+        if(clientFromDBbyEmail.isPresent()){
+            throw new ClientNotCreatedException("User with this email already exists");
+        }
+    }
+
+    public String update(DTOUpdate user) {
         Client client = getCurrentUser();
-        client.setUsername(user.getUsername());
-        client.setPassword(encoder.encode(user.getPassword()));
-        client.setAddress(user.getAddress());
-        client.setEmail(user.getEmail());
+        if(user.getUsername() != null){
+            client.setUsername(user.getUsername());
+        }
+        if(user.getPassword() != null){
+            client.setPassword(encoder.encode(user.getPassword()));
+        }
+        if(user.getEmail() != null){
+            client.setEmail(user.getEmail());
+        }
+        if(user.getAddress() != null){
+            client.setAddress(user.getAddress());
+        }
+
         repository.save(client);
         return "Update successful";
     }
 
-    private Client getCurrentUser() {
+    public Client getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         return findByUsernameOrThrow(userDetails.getUsername());

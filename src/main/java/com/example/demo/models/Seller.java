@@ -22,7 +22,7 @@ public class Seller{
     @Column
     private String password;
     @Column
-    private final String role = "SELLER";
+    private final String role = "ROLE_SELLER";
     @Column
     private String companyName;
     @Column

@@ -6,8 +6,11 @@ import com.example.demo.models.FeedBack;
 import com.example.demo.services.GoodsService;
 import com.example.demo.utils.Category;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,8 +34,9 @@ public class GoodsController {
 
     //пагинация
     @GetMapping("/all")
-    public ResponseEntity<?> showAllGoods(){
-        List<DTOGood> list = goodsService.findAll();
+    public ResponseEntity<?> showAllGoods(@RequestParam(required = false, defaultValue = "1") int page,
+                                          @RequestParam(required = false, defaultValue = "2") int size){
+        Page<DTOGood> list = goodsService.findAll(page-1, size);
         return ResponseEntity.ok(list);
     }
 
@@ -43,7 +47,7 @@ public class GoodsController {
     }
 
     @GetMapping("/categories")
-    public ResponseEntity<?> showAllCategories(){
+        public ResponseEntity<?> showAllCategories(){
         List<Category> list = List.of(Category.values());
         return ResponseEntity.ok(list);
     }
@@ -61,6 +65,7 @@ public class GoodsController {
     }
 
     @PostMapping(value = "/{id}/feedback")
+    @Secured("CLIENT")
     public ResponseEntity<?> rateGood(@PathVariable long id, @RequestBody FeedBack feedBack){
         System.out.println(feedBack);
         goodsService.addRate(id, feedBack);

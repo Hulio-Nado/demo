@@ -30,7 +30,7 @@ public class Client  {
     @Column
     private int card;
     @Column
-    private String role = "CLIENT";
+    private final String role = "ROLE_CLIENT";
 
     @OneToMany(mappedBy = "client")
     private List<FeedBack> listFeedbacks;

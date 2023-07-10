@@ -22,6 +22,7 @@ public class FeedBack {
     @JoinColumn(name = "goods_id", referencedColumnName = "id")
     private Goods goods;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "client_id", referencedColumnName = "id")
     private Client client;
