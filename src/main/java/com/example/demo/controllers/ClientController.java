@@ -33,7 +33,7 @@ public class ClientController {
     @ResponseBody
     @PatchMapping
     @Secured("CLIENT")
-    public ResponseEntity<?> updateUser(@RequestBody DTOUpdate request) {
+    public ResponseEntity<?> updateUser(@RequestBody @Valid DTOUpdate request) {
         System.out.println(request);
         return ResponseEntity.ok(clientService.update(request));
     }

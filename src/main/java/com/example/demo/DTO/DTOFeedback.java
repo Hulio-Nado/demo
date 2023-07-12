@@ -5,6 +5,7 @@ import com.example.demo.models.Seller;
 import lombok.Data;
 import org.modelmapper.ModelMapper;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -16,6 +17,8 @@ public class DTOFeedback {
     private String feedback;
 
     private int rate;
+
+    private LocalDateTime created;
 
     public static DTOFeedback convertToDTO(FeedBack feedBack){
         DTOFeedback dtoFeedback = modelMapper.map(feedBack, DTOFeedback.class);

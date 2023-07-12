@@ -37,7 +37,7 @@ public class SellerController {
     @ResponseBody
     @PatchMapping
     @Secured("SELLER")
-    public ResponseEntity<?> updateUser(@RequestBody DTOUpdate request) {
+    public ResponseEntity<?> updateUser(@RequestBody @Valid DTOUpdate request) {
         return ResponseEntity.ok(sellerService.update(request));
     }
 
@@ -69,7 +69,6 @@ public class SellerController {
     @GetMapping("/all")
     @Secured("SELLER")
     public ResponseEntity<?> showGoods(){
-
         return ResponseEntity.ok().body(sellerService.findAll());
     }
 }

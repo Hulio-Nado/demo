@@ -33,11 +33,34 @@ public class GoodsController {
         this.goodsService = goodsService;
     }
 
-    //пагинация
+    //вывод всех товаров без сортировок
     @GetMapping("/all")
     public ResponseEntity<?> showAllGoods(@RequestParam(required = false, defaultValue = "1") int page,
-                                          @RequestParam(required = false, defaultValue = "2") int size){
+                                          @RequestParam(required = false, defaultValue = "3") int size){
         Page<DTOGood> list = goodsService.findAll(page-1, size);
+        return ResponseEntity.ok(list);
+    }
+
+    //вывод всех товаров с сортировкой по рейтингу
+    @GetMapping("/all/rate")
+    public ResponseEntity<?> showAllGoodsOrderByRate(@RequestParam(required = false, defaultValue = "1") int page,
+                                          @RequestParam(required = false, defaultValue = "3") int size){
+        Page<DTOGood> list = goodsService.findAllByRate(page-1, size);
+        return ResponseEntity.ok(list);
+    }
+
+    //вывод всех товаров с сортировкой по рейтингу(начиная с низкого)
+    @GetMapping("/all/raterev")
+    public ResponseEntity<?> showAllGoodsOrderByRateRev(@RequestParam(required = false, defaultValue = "1") int page,
+                                                     @RequestParam(required = false, defaultValue = "3") int size){
+        Page<DTOGood> list = goodsService.findAllByRateRev(page-1, size);
+        return ResponseEntity.ok(list);
+    }
+
+    @GetMapping("/all/count")
+    public ResponseEntity<?> showAllGoodsOrderByCount(@RequestParam(required = false, defaultValue = "1") int page,
+                                                        @RequestParam(required = false, defaultValue = "3") int size){
+        Page<DTOGood> list = goodsService.findAllByCount(page-1, size);
         return ResponseEntity.ok(list);
     }
 
@@ -67,15 +90,43 @@ public class GoodsController {
 
     @PostMapping(value = "/{id}/feedback")
     @Secured("CLIENT")
-    public ResponseEntity<?> rateGood(@PathVariable long id, @RequestBody FeedBack feedBack){
+    public ResponseEntity<?> rateGood(@PathVariable long id, @RequestBody @Valid FeedBack feedBack){
         System.out.println(feedBack);
         goodsService.addRate(id, feedBack);
         return showAllFeedbacksByGoodsID(id);
     }
 
-    @GetMapping("/{id}/allFeedbacks")
+    @GetMapping("/{id}/feeds")
     public ResponseEntity<?> showAllFeedbacksByGoodsID(@PathVariable long id) {
         List<DTOFeedback> list = goodsService.findAllFeedbacks(id);
+        return ResponseEntity.ok(list);
+    }
+
+    //сортировка отзывов по дате с последней начиная
+    @GetMapping("/{id}/feeds/date")
+    public ResponseEntity<?> showAllFeedbacksByDate(@PathVariable long id) {
+        List<DTOFeedback> list = goodsService.findAllFeedbackByDate(id);
+        return ResponseEntity.ok(list);
+    }
+
+    //сортировка отзывов по дате начиная со старых
+    @GetMapping("/{id}/feeds/daterev")
+    public ResponseEntity<?> showAllFeedbacksByDateRev(@PathVariable long id) {
+        List<DTOFeedback> list = goodsService.findAllFeedbackByDateRev(id);
+        return ResponseEntity.ok(list);
+    }
+
+    //сортировка отзывов по рейтингу (начиная с 5 баллов)
+    @GetMapping("/{id}/feeds/rate")
+    public ResponseEntity<?> showAllFeedbacksByRate(@PathVariable long id) {
+        List<DTOFeedback> list = goodsService.findAllFeedbackByRate(id);
+        return ResponseEntity.ok(list);
+    }
+
+    //сортировка отзывов по рейтингу (начиная с меньшего рейтинга)
+    @GetMapping("/{id}/feeds/raterev")
+    public ResponseEntity<?> showAllFeedbacksByRateAsc(@PathVariable long id) {
+        List<DTOFeedback> list = goodsService.findAllFeedbackByRateAsc(id);
         return ResponseEntity.ok(list);
     }
 

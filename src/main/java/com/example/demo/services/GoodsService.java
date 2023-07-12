@@ -20,14 +20,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Slf4j
 public class GoodsService {
     private final GoodsRepository goodsRepository;
     private final FeedBackRepository feedBackRepository;
     private final SellerService sellerService;
     private final ClientService clientService;
     private final SellerRepository sellerRepository;
-
 
     public GoodsService(GoodsRepository goodsRepository, FeedBackRepository feedBackRepository,
                         SellerService sellerService, ClientService clientService, SellerRepository sellerRepository) {
@@ -42,7 +40,26 @@ public class GoodsService {
         Pageable pageable = PageRequest.of(page, size);
         Page<Good> resultPage = goodsRepository.findAll(pageable);
 
-        //DTOGood.convertToDTOList(goodsRepository.findAll());
+        return DTOGood.convertToDTOPage(resultPage);
+    }
+
+    public Page<DTOGood> findAllByRate(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Good> resultPage = goodsRepository.findAllByOrderByRateDesc(pageable);
+
+        return DTOGood.convertToDTOPage(resultPage);
+    }
+
+    public Page<DTOGood> findAllByRateRev(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Good> resultPage = goodsRepository.findAllByOrderByRateAsc(pageable);
+
+        return DTOGood.convertToDTOPage(resultPage);
+    }
+
+    public Page<DTOGood> findAllByCount(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Good> resultPage = goodsRepository.findAllByOrderByCountRatesDesc(pageable);
 
         return DTOGood.convertToDTOPage(resultPage);
     }
@@ -90,19 +107,21 @@ public class GoodsService {
         Client client = clientService.getCurrentUser();
         Good good = goodsRepository.findById(id).
                 orElseThrow(() -> new RuntimeException("Товар с данным ID не найден"));
-
+        Seller seller = good.getSeller();
         feedBack.setGood(good);
         feedBack.setClient(client);
 
-        Seller seller = good.getSeller();
-        double sum = (seller.getRate()*seller.getCountRates());
+        calculate(seller, feedBack, good);
+    }
+
+    public void calculate(Seller seller, FeedBack feedBack, Good good){
+        double sum = seller.getRate()*seller.getCountRates();
         sum += feedBack.getRate();
         seller.setCountRates(seller.getCountRates() + 1);
         seller.setRate(sum / seller.getCountRates());
         sellerRepository.save(seller);
 
-
-        double sum1 = (good.getRate()*good.getCountRates());
+        double sum1 = good.getRate()*good.getCountRates();
         sum1 += feedBack.getRate();
         good.setCountRates(good.getCountRates() + 1);
         good.setRate(sum1 / good.getCountRates());
@@ -117,5 +136,27 @@ public class GoodsService {
         return list;
     }
 
+    public List<DTOFeedback> findAllFeedbackByDate(long id) {
+        List <FeedBack> feeds = feedBackRepository.findAllByOrderByCreatedDesc();
+        List<DTOFeedback> list = DTOFeedback.convertToDTOList(feeds);
+        return list;
+    }
 
+    public List<DTOFeedback> findAllFeedbackByDateRev(long id) {
+        List <FeedBack> feeds = feedBackRepository.findAllByOrderByCreatedAsc();
+        List<DTOFeedback> list = DTOFeedback.convertToDTOList(feeds);
+        return list;
+    }
+
+    public List<DTOFeedback> findAllFeedbackByRate(long id) {
+        List <FeedBack> feeds = feedBackRepository.findAllByOrderByRateDesc();
+        List<DTOFeedback> list = DTOFeedback.convertToDTOList(feeds);
+        return list;
+    }
+
+    public List<DTOFeedback> findAllFeedbackByRateAsc(long id) {
+        List <FeedBack> feeds = feedBackRepository.findAllByOrderByRateAsc();
+        List<DTOFeedback> list = DTOFeedback.convertToDTOList(feeds);
+        return list;
+    }
 }

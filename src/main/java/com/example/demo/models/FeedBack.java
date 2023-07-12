@@ -4,10 +4,13 @@ package com.example.demo.models;
 import com.example.demo.DTO.DTOClient;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table
@@ -34,7 +37,16 @@ public class FeedBack {
     @NotNull
     @Column
     @Min(value = 1, message = "Rate must be more then 1*")
+    @Max(value = 5, message = "Rate must be no more then 5*")
     private int rate;
+
+    @Column
+    private LocalDateTime created;
+
+    @PrePersist
+    public void setCreated() {
+        this.created = LocalDateTime.now();
+    }
 
     @Override
     public String toString() {

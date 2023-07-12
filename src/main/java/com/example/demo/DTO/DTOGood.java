@@ -31,6 +31,8 @@ public class DTOGood {
 
     private double rate;
 
+    private int countRates;
+
     public static DTOGood convertToDTO(Good good){
         DTOGood dtoGood = modelMapper.map(good, DTOGood.class);
         DTOSeller dtoSeller = DTOSeller.convertToDTO(good.getSeller());

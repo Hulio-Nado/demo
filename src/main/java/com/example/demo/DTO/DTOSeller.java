@@ -10,9 +10,7 @@ import org.modelmapper.ModelMapper;
 public class DTOSeller {
     private static ModelMapper modelMapper = new ModelMapper();
 
-    private long id;
-
-    private String username;
+    private String companyName;
 
     private String address;
 
