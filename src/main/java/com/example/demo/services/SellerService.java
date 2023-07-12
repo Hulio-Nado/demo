@@ -4,6 +4,7 @@ import com.example.demo.DTO.DTORegistration;
 import com.example.demo.DTO.DTOUpdate;
 import com.example.demo.models.Client;
 import com.example.demo.models.Seller;
+import com.example.demo.repo.GoodsRepository;
 import com.example.demo.repo.SellerRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -11,17 +12,21 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class SellerService {
 
     private final SellerRepository repository;
+    private final GoodsRepository goodsRepository;
     private final BCryptPasswordEncoder encoder;
 
-    public SellerService(SellerRepository repository, BCryptPasswordEncoder encoder) {
+    public SellerService(SellerRepository repository,
+                         BCryptPasswordEncoder encoder, GoodsRepository goodsRepository) {
         this.repository = repository;
         this.encoder = encoder;
+        this.goodsRepository = goodsRepository;
     }
 
     public boolean isPresent(Long id) {
@@ -54,7 +59,7 @@ public class SellerService {
         }
         repository.save(seller);
         return "Update successful";
-        //сделать так чтобы обновлять только то что придет - не было налов!!!
+
     }
 
     public Seller getCurrentUser() {
@@ -66,6 +71,10 @@ public class SellerService {
     public Seller findByUsernameOrThrow(String username) {
         Optional<Seller> optional = repository.findByUsername(username);
         return optional.orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    public List<?> findAll() {
+        return goodsRepository.findAllBySeller(getCurrentUser());
     }
 
     //методы сервиса и вызов методов бд

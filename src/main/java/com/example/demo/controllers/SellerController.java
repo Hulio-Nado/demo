@@ -64,4 +64,12 @@ public class SellerController {
         goodsService.delete(id);
         return ResponseEntity.ok().body("Товар удален");
     }
+
+    @ResponseBody
+    @GetMapping("/all")
+    @Secured("SELLER")
+    public ResponseEntity<?> showGoods(){
+
+        return ResponseEntity.ok().body(sellerService.findAll());
+    }
 }

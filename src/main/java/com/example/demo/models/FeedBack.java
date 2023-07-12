@@ -1,6 +1,7 @@
 package com.example.demo.models;
 
 
+import com.example.demo.DTO.DTOClient;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
@@ -19,8 +20,8 @@ public class FeedBack {
 
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "goods_id", referencedColumnName = "id")
-    private Goods goods;
+    @JoinColumn(name = "good_id", referencedColumnName = "id")
+    private Good good;
 
     @JsonIgnore
     @ManyToOne

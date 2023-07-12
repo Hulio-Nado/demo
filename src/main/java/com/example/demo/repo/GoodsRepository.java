@@ -1,6 +1,7 @@
 package com.example.demo.repo;
 
-import com.example.demo.models.Goods;
+import com.example.demo.models.Good;
+import com.example.demo.models.Seller;
 import com.example.demo.utils.Category;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,11 +10,13 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 @Repository
-public interface GoodsRepository extends JpaRepository<Goods, Long> {
-    List<Goods> findByCategory(Category category);
+public interface GoodsRepository extends JpaRepository<Good, Long> {
+    List<Good> findByCategory(Category category);
 
 
-    List<Goods> findByName(String name);
+    List<Good> findByName(String name);
 
-    Page<Goods> findAll(Pageable pageable);
+    Page<Good> findAll(Pageable pageable);
+
+    List<?> findAllBySeller(Seller currentUser);
 }

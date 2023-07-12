@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.DTO.DTOFeedback;
 import com.example.demo.DTO.DTOGood;
 import com.example.demo.DTO.DTOSearch;
 import com.example.demo.models.FeedBack;
@@ -74,17 +75,8 @@ public class GoodsController {
 
     @GetMapping("/{id}/allFeedbacks")
     public ResponseEntity<?> showAllFeedbacksByGoodsID(@PathVariable long id) {
-        List<FeedBack> list = goodsService.findAllFeedbacks(id);
+        List<DTOFeedback> list = goodsService.findAllFeedbacks(id);
         return ResponseEntity.ok(list);
     }
 
-    @GetMapping("/{id}/average")
-    public ResponseEntity<?> averageRate(@PathVariable long id) {
-        List<FeedBack> list = goodsService.findAllFeedbacks(id);
-        double sum = 0;
-        for(FeedBack feedBack : list){
-            sum+= feedBack.getRate();
-        }
-        return ResponseEntity.ok(sum/list.size());
-    }
 }

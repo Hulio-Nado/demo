@@ -2,6 +2,7 @@ package com.example.demo.models;
 
 
 import com.example.demo.DTO.DTORegistration;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +21,8 @@ public class Client  {
     @Column
     private String username;
     @Column
+    private String name;
+    @Column
     private String password;
     @Column
     private String address;
@@ -32,6 +35,7 @@ public class Client  {
     @Column
     private final String role = "ROLE_CLIENT";
 
+    @JsonIgnore
     @OneToMany(mappedBy = "client")
     private List<FeedBack> listFeedbacks;
 

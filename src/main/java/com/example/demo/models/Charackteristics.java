@@ -12,7 +12,7 @@ public class Charackteristics {
 
     @ManyToOne()
     @JoinColumn(name = "goods_id")
-    private Goods goods_id;
+    private Good good_id;
     private String name;
     private String result;
 

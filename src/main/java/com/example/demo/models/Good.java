@@ -7,20 +7,18 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.annotations.Cascade;
 
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table
 @Getter
 @Setter
 @NoArgsConstructor//констр без параметров
-public class Goods {
+public class Good {
 
-    public Goods(DTOGood createGood) {
+    public Good(DTOGood createGood) {
         this.name = createGood.getName();
         this.price = createGood.getPrice();
     }
@@ -45,10 +43,10 @@ public class Goods {
     @Enumerated(value = EnumType.STRING)
     private Category category;
 
-    @OneToMany(mappedBy = "goods_id")
+    @OneToMany(mappedBy = "good_id")
     private List<Charackteristics> list;
 
-    @OneToMany(mappedBy = "goods")
+    @OneToMany(mappedBy = "good")
     @Cascade(value = org.hibernate.annotations.CascadeType.ALL)
     private List<FeedBack> listFeedbacks;
 

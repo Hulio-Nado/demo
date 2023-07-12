@@ -1,11 +1,14 @@
 package com.example.demo.services;
 
+import com.example.demo.DTO.DTOFeedback;
 import com.example.demo.DTO.DTOGood;
 import com.example.demo.models.Client;
 import com.example.demo.models.FeedBack;
-import com.example.demo.models.Goods;
+import com.example.demo.models.Good;
+import com.example.demo.models.Seller;
 import com.example.demo.repo.FeedBackRepository;
 import com.example.demo.repo.GoodsRepository;
+import com.example.demo.repo.SellerRepository;
 import com.example.demo.utils.Category;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -23,18 +26,21 @@ public class GoodsService {
     private final FeedBackRepository feedBackRepository;
     private final SellerService sellerService;
     private final ClientService clientService;
+    private final SellerRepository sellerRepository;
+
 
     public GoodsService(GoodsRepository goodsRepository, FeedBackRepository feedBackRepository,
-                        SellerService sellerService, ClientService clientService) {
+                        SellerService sellerService, ClientService clientService, SellerRepository sellerRepository) {
         this.goodsRepository = goodsRepository;
         this.feedBackRepository = feedBackRepository;
         this.sellerService = sellerService;
         this.clientService = clientService;
+        this.sellerRepository = sellerRepository;
     }
 
     public Page<DTOGood> findAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Goods> resultPage = goodsRepository.findAll(pageable);
+        Page<Good> resultPage = goodsRepository.findAll(pageable);
 
         //DTOGood.convertToDTOList(goodsRepository.findAll());
 
@@ -42,38 +48,39 @@ public class GoodsService {
     }
 
     public DTOGood findByID(long id) {
-        Optional<Goods> optional = goodsRepository.findById(id);
-        Goods goods = optional.orElseThrow(() -> new RuntimeException("Товар с данным ID не найден"));
-        return DTOGood.convertToDTO(goods);
+        Optional<Good> optional = goodsRepository.findById(id);
+        Good good = optional.orElseThrow(() -> new RuntimeException("Товар с данным ID не найден"));
+        return DTOGood.convertToDTO(good);
     }
 
     public List<DTOGood> findByCategory(Category category) {
-        List<Goods> list = goodsRepository.findByCategory(category);
+        List<Good> list = goodsRepository.findByCategory(category);
         return DTOGood.convertToDTOList(list);
     }
 
     public List<DTOGood> findByName(String name) {
         System.out.println(name);
-        List<Goods> list = goodsRepository.findByName(name);
+        List<Good> list = goodsRepository.findByName(name);
         System.out.println(list);
         return DTOGood.convertToDTOList(list);
     }
 
-    public void save(Goods goods) {
-        goods.setRate(0);
-        goods.setCountRates(0);
-        goods.setSeller(sellerService.getCurrentUser());
-        goodsRepository.save(goods);
+    public void save(Good good) {
+        good.setRate(0);
+        good.setCountRates(0);
+        good.setSeller(sellerService.getCurrentUser());
+        goodsRepository.save(good);
     }
 
     public void update(long id, DTOGood goodToUpdate) {
-        Optional<Goods> optional = goodsRepository.findById(id);
-        Goods goods = optional.orElseThrow(() -> new RuntimeException("Товар с данным ID не найден"));//лямбда
-        goods.setName(goodToUpdate.getName());
-        goods.setPrice(goodToUpdate.getPrice());
-        goods.setCategory(goodToUpdate.getCategory());
-        goodsRepository.save(goods);
+        Optional<Good> optional = goodsRepository.findById(id);
+        Good good = optional.orElseThrow(() -> new RuntimeException("Товар с данным ID не найден"));//лямбда
+        good.setName(goodToUpdate.getName());
+        good.setPrice(goodToUpdate.getPrice());
+        good.setCategory(goodToUpdate.getCategory());
+        goodsRepository.save(good);
     }
+    //goodmapper подумать
 
     public void delete(long id) {
         goodsRepository.deleteById(id);
@@ -81,27 +88,33 @@ public class GoodsService {
 
     public void addRate(long id, FeedBack feedBack) {
         Client client = clientService.getCurrentUser();
-        Optional<Goods> optional = goodsRepository.findById(id);
-        Goods goods = optional.orElseThrow(() -> new RuntimeException("Товар с данным ID не найден"));
-        feedBack.setGoods(goods);
+        Good good = goodsRepository.findById(id).
+                orElseThrow(() -> new RuntimeException("Товар с данным ID не найден"));
+
+        feedBack.setGood(good);
         feedBack.setClient(client);
 
-        double sum = (goods.getRate()*goods.getCountRates());
+        Seller seller = good.getSeller();
+        double sum = (seller.getRate()*seller.getCountRates());
         sum += feedBack.getRate();
-        goods.setCountRates(goods.getCountRates()+1);
-        goods.setRate((double) sum/(goods.getCountRates()));
-        goodsRepository.save(goods);
+        seller.setCountRates(seller.getCountRates() + 1);
+        seller.setRate(sum / seller.getCountRates());
+        sellerRepository.save(seller);
+
+
+        double sum1 = (good.getRate()*good.getCountRates());
+        sum1 += feedBack.getRate();
+        good.setCountRates(good.getCountRates() + 1);
+        good.setRate(sum1 / good.getCountRates());
+        goodsRepository.save(good);
         feedBackRepository.save(feedBack);
     }
 
-    public double getRate(int id){
-        ret
-    }
-
-    public List<FeedBack> findAllFeedbacks(long id) {
-        Optional<Goods> optional = goodsRepository.findById(id);
-        Goods goods = optional.orElseThrow(() -> new RuntimeException("Товар с данным ID не найден"));
-        return goods.getListFeedbacks();
+    public List<DTOFeedback> findAllFeedbacks(long id) {
+        Optional<Good> optional = goodsRepository.findById(id);
+        Good good = optional.orElseThrow(() -> new RuntimeException("Товар с данным ID не найден"));
+        List<DTOFeedback> list = DTOFeedback.convertToDTOList(good.getListFeedbacks());
+        return list;
     }
 
 

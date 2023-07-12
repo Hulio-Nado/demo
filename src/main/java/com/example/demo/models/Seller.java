@@ -1,6 +1,5 @@
 package com.example.demo.models;
 
-import com.example.demo.DTO.DTORegistration;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -19,6 +18,7 @@ public class Seller{
     private long id;
     @Column
     private String username;
+    @JsonIgnore
     @Column
     private String password;
     @Column
@@ -32,11 +32,11 @@ public class Seller{
     @Column
     private double rate;
     @Column
-    private int sumOfRates;
+    private int countRates;
 
     @JsonIgnore
     @OneToMany(mappedBy = "seller")
-    private List<Goods> products;
+    private List<Good> products;
 
     @Override
     public String toString() {
