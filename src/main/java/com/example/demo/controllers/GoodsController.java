@@ -8,14 +8,11 @@ import com.example.demo.services.GoodsService;
 import com.example.demo.utils.Category;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/good")
@@ -96,6 +93,7 @@ public class GoodsController {
         return showAllFeedbacksByGoodsID(id);
     }
 
+    //вывод всех отзывов у одного товара по айди
     @GetMapping("/{id}/feeds")
     public ResponseEntity<?> showAllFeedbacksByGoodsID(@PathVariable long id) {
         List<DTOFeedback> list = goodsService.findAllFeedbacks(id);
@@ -104,29 +102,34 @@ public class GoodsController {
 
     //сортировка отзывов по дате с последней начиная
     @GetMapping("/{id}/feeds/date")
-    public ResponseEntity<?> showAllFeedbacksByDate(@PathVariable long id) {
-        List<DTOFeedback> list = goodsService.findAllFeedbackByDate(id);
+    public ResponseEntity<?> showAllFeedbacksByDate(@PathVariable long id,
+                                                    @RequestParam(defaultValue = "0") int rate) {
+        List<DTOFeedback> list = goodsService.findAllFeedbackSortedByDate(id, rate);
         return ResponseEntity.ok(list);
     }
 
     //сортировка отзывов по дате начиная со старых
     @GetMapping("/{id}/feeds/daterev")
-    public ResponseEntity<?> showAllFeedbacksByDateRev(@PathVariable long id) {
-        List<DTOFeedback> list = goodsService.findAllFeedbackByDateRev(id);
+    public ResponseEntity<?> showAllFeedbacksByDateRev(@PathVariable long id,
+                                                       @RequestParam(defaultValue = "0") int rate) {
+        List<DTOFeedback> list = goodsService.findAllFeedbackSortedByDateRev(id, rate);
         return ResponseEntity.ok(list);
     }
 
     //сортировка отзывов по рейтингу (начиная с 5 баллов)
     @GetMapping("/{id}/feeds/rate")
-    public ResponseEntity<?> showAllFeedbacksByRate(@PathVariable long id) {
-        List<DTOFeedback> list = goodsService.findAllFeedbackByRate(id);
+    public ResponseEntity<?> showAllFeedbacksByRate(@PathVariable long id,
+                                                    @RequestParam(defaultValue = "0") int rate) {
+        List<DTOFeedback> list = goodsService.findAllFeedbackByRate(id, rate);
+
         return ResponseEntity.ok(list);
     }
 
     //сортировка отзывов по рейтингу (начиная с меньшего рейтинга)
     @GetMapping("/{id}/feeds/raterev")
-    public ResponseEntity<?> showAllFeedbacksByRateAsc(@PathVariable long id) {
-        List<DTOFeedback> list = goodsService.findAllFeedbackByRateAsc(id);
+    public ResponseEntity<?> showAllFeedbacksByRateAsc(@PathVariable long id,
+                                                       @RequestParam(defaultValue = "0") int rate) {
+        List<DTOFeedback> list = goodsService.findAllFeedbackByRateAsc(id, rate);
         return ResponseEntity.ok(list);
     }
 

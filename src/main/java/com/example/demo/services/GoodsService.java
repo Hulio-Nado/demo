@@ -10,16 +10,16 @@ import com.example.demo.repo.FeedBackRepository;
 import com.example.demo.repo.GoodsRepository;
 import com.example.demo.repo.SellerRepository;
 import com.example.demo.utils.Category;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
+@Transactional(readOnly = true)
 public class GoodsService {
     private final GoodsRepository goodsRepository;
     private final FeedBackRepository feedBackRepository;
@@ -70,6 +70,12 @@ public class GoodsService {
         return DTOGood.convertToDTO(good);
     }
 
+    public Good findByID2(long id) {
+        Optional<Good> optional = goodsRepository.findById(id);
+        Good good = optional.orElseThrow(() -> new RuntimeException("Товар с данным ID не найден"));
+        return good;
+    }
+
     public List<DTOGood> findByCategory(Category category) {
         List<Good> list = goodsRepository.findByCategory(category);
         return DTOGood.convertToDTOList(list);
@@ -82,6 +88,7 @@ public class GoodsService {
         return DTOGood.convertToDTOList(list);
     }
 
+    @Transactional
     public void save(Good good) {
         good.setRate(0);
         good.setCountRates(0);
@@ -89,6 +96,7 @@ public class GoodsService {
         goodsRepository.save(good);
     }
 
+    @Transactional
     public void update(long id, DTOGood goodToUpdate) {
         Optional<Good> optional = goodsRepository.findById(id);
         Good good = optional.orElseThrow(() -> new RuntimeException("Товар с данным ID не найден"));//лямбда
@@ -99,10 +107,12 @@ public class GoodsService {
     }
     //goodmapper подумать
 
+    @Transactional
     public void delete(long id) {
         goodsRepository.deleteById(id);
     }
 
+    @Transactional
     public void addRate(long id, FeedBack feedBack) {
         Client client = clientService.getCurrentUser();
         Good good = goodsRepository.findById(id).
@@ -114,6 +124,7 @@ public class GoodsService {
         calculate(seller, feedBack, good);
     }
 
+    @Transactional
     public void calculate(Seller seller, FeedBack feedBack, Good good){
         double sum = seller.getRate()*seller.getCountRates();
         sum += feedBack.getRate();
@@ -136,27 +147,44 @@ public class GoodsService {
         return list;
     }
 
-    public List<DTOFeedback> findAllFeedbackByDate(long id) {
-        List <FeedBack> feeds = feedBackRepository.findAllByOrderByCreatedDesc();
-        List<DTOFeedback> list = DTOFeedback.convertToDTOList(feeds);
-        return list;
+    //вывод отзывов одного товара по айди начиная с ближней к нам даты
+    public List<DTOFeedback> findAllFeedbackSortedByDate(long id, int rate) {
+        List <FeedBack> feeds = feedBackRepository.findByGoodIdOrderByCreatedDesc(id);
+        if(rate != 0) {
+            feeds = feeds.stream().filter(s -> s.getRate() == rate).toList();
+        }
+
+        return DTOFeedback.convertToDTOList(feeds);
     }
 
-    public List<DTOFeedback> findAllFeedbackByDateRev(long id) {
-        List <FeedBack> feeds = feedBackRepository.findAllByOrderByCreatedAsc();
-        List<DTOFeedback> list = DTOFeedback.convertToDTOList(feeds);
-        return list;
+    //вывод отзывов одного товара по айди начиная с более ранней даты
+    public List<DTOFeedback> findAllFeedbackSortedByDateRev(long id, int rate) {
+        List <FeedBack> feeds = feedBackRepository.findByGoodIdOrderByCreatedAsc(id);
+        if(rate != 0) {
+            feeds = feeds.stream().filter(s -> s.getRate() == rate).toList();
+        }
+
+        return DTOFeedback.convertToDTOList(feeds);
     }
 
-    public List<DTOFeedback> findAllFeedbackByRate(long id) {
-        List <FeedBack> feeds = feedBackRepository.findAllByOrderByRateDesc();
-        List<DTOFeedback> list = DTOFeedback.convertToDTOList(feeds);
-        return list;
+    //вывод отзывов одного товара по айди начиная с большего рейтинга
+    public List<DTOFeedback> findAllFeedbackByRate(long id, int rate) {
+
+        List <FeedBack> feeds = feedBackRepository.findByGoodIdOrderByRateDesc(id);
+        if(rate != 0) {
+            feeds = feeds.stream().filter(s -> s.getRate() == rate).toList();
+        }
+
+        return DTOFeedback.convertToDTOList(feeds);
     }
 
-    public List<DTOFeedback> findAllFeedbackByRateAsc(long id) {
-        List <FeedBack> feeds = feedBackRepository.findAllByOrderByRateAsc();
-        List<DTOFeedback> list = DTOFeedback.convertToDTOList(feeds);
-        return list;
+    //вывод отзывов одного товара по айди начиная с меньшего рейтинга
+    public List<DTOFeedback> findAllFeedbackByRateAsc(long id, int rate) {
+        List <FeedBack> feeds = feedBackRepository.findByGoodIdOrderByRateAsc(id);
+        if(rate != 0) {
+            feeds = feeds.stream().filter(s -> s.getRate() == rate).toList();
+        }
+
+        return DTOFeedback.convertToDTOList(feeds);
     }
 }

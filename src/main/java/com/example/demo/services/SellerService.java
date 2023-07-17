@@ -11,11 +11,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class SellerService {
 
     private final SellerRepository repository;
@@ -27,13 +29,6 @@ public class SellerService {
         this.repository = repository;
         this.encoder = encoder;
         this.goodsRepository = goodsRepository;
-    }
-
-    public boolean isPresent(Long id) {
-        Optional<Seller> optional = repository.findById(id);
-        if(optional.isPresent()){
-            return true;
-        } else return false;
     }
 
     public String save(DTORegistration request) {
@@ -68,11 +63,13 @@ public class SellerService {
         return findByUsernameOrThrow(userDetails.getUsername());
     }
 
+    @Transactional(readOnly = true)
     public Seller findByUsernameOrThrow(String username) {
         Optional<Seller> optional = repository.findByUsername(username);
         return optional.orElseThrow(() -> new RuntimeException("User not found"));
     }
 
+    @Transactional(readOnly = true)
     public List<?> findAll() {
         return goodsRepository.findAllBySeller(getCurrentUser());
     }

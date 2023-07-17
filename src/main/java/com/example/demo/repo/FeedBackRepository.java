@@ -1,6 +1,7 @@
 package com.example.demo.repo;
 
 import com.example.demo.models.FeedBack;
+import com.example.demo.models.Good;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -8,12 +9,11 @@ import java.util.List;
 
 @Repository
 public interface FeedBackRepository extends CrudRepository<FeedBack, Long> {
+    List<FeedBack> findByGoodIdOrderByRateDesc(long id);
 
-    List<FeedBack> findAllByOrderByCreatedDesc();
+    List<FeedBack> findByGoodIdOrderByRateAsc(long id);
 
-    List<FeedBack> findAllByOrderByRateDesc();
+    List<FeedBack> findByGoodIdOrderByCreatedDesc(long id);
 
-    List<FeedBack> findAllByOrderByCreatedAsc();
-
-    List<FeedBack> findAllByOrderByRateAsc();
+    List<FeedBack> findByGoodIdOrderByCreatedAsc(long id);
 }

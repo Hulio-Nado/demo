@@ -37,4 +37,11 @@ public class ClientController {
         System.out.println(request);
         return ResponseEntity.ok(clientService.update(request));
     }
+
+    @ResponseBody
+    @GetMapping("/{id}/add")
+    public ResponseEntity<?> add(@PathVariable int id,
+                                 @RequestParam(required = false, defaultValue = "1") int quantity){
+        return ResponseEntity.ok(clientService.addToBasket(id, quantity));
+    }
 }
