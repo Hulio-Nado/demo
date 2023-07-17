@@ -13,7 +13,6 @@ import java.util.List;
 public interface GoodsRepository extends JpaRepository<Good, Long> {
     List<Good> findByCategory(Category category);
 
-
     List<Good> findByName(String name);
 
     Page<Good> findAll(Pageable pageable);
