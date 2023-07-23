@@ -40,6 +40,7 @@ public class Client  {
     @OneToMany(mappedBy = "client")
     private List<FeedBack> listFeedbacks;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "client")
     private List<ClientGood> basket;
 

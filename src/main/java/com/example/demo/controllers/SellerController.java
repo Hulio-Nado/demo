@@ -8,7 +8,6 @@ import com.example.demo.services.SellerService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -69,6 +68,16 @@ public class SellerController {
     @GetMapping("/all")
     @Secured("SELLER")
     public ResponseEntity<?> showGoods(){
+        return ResponseEntity.ok().body(sellerService.findAll());
+    }
+
+    //метод - сделать отгрузку со склада - увеличить количество товара на маркетплейсе
+    @ResponseBody
+    @GetMapping("/upload/{id}")
+    @Secured("SELLER")
+    public ResponseEntity<?> makeUpload(@PathVariable long id,
+                                        @RequestParam(required = false, defaultValue = "0") int q){
+        sellerService.upload(id, q);
         return ResponseEntity.ok().body(sellerService.findAll());
     }
 }

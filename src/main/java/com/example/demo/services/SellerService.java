@@ -1,8 +1,9 @@
 package com.example.demo.services;
 
+import com.example.demo.DTO.DTOGood;
 import com.example.demo.DTO.DTORegistration;
 import com.example.demo.DTO.DTOUpdate;
-import com.example.demo.models.Client;
+import com.example.demo.models.Good;
 import com.example.demo.models.Seller;
 import com.example.demo.repo.GoodsRepository;
 import com.example.demo.repo.SellerRepository;
@@ -20,13 +21,13 @@ import java.util.Optional;
 @Transactional
 public class SellerService {
 
-    private final SellerRepository repository;
+    private final SellerRepository sellerRepository;
     private final GoodsRepository goodsRepository;
     private final BCryptPasswordEncoder encoder;
 
-    public SellerService(SellerRepository repository,
+    public SellerService(SellerRepository sellerRepository,
                          BCryptPasswordEncoder encoder, GoodsRepository goodsRepository) {
-        this.repository = repository;
+        this.sellerRepository = sellerRepository;
         this.encoder = encoder;
         this.goodsRepository = goodsRepository;
     }
@@ -34,7 +35,7 @@ public class SellerService {
     public String save(DTORegistration request) {
         Seller seller = request.convertToSeller();
         seller.setPassword(encoder.encode(request.getPassword()));
-        repository.save(seller);
+        sellerRepository.save(seller);
         return "Registration successful";
     }
 
@@ -52,9 +53,8 @@ public class SellerService {
         if(user.getAddress() != null){
             seller.setAddress(user.getAddress());
         }
-        repository.save(seller);
+        sellerRepository.save(seller);
         return "Update successful";
-
     }
 
     public Seller getCurrentUser() {
@@ -65,13 +65,28 @@ public class SellerService {
 
     @Transactional(readOnly = true)
     public Seller findByUsernameOrThrow(String username) {
-        Optional<Seller> optional = repository.findByUsername(username);
+        Optional<Seller> optional = sellerRepository.findByUsername(username);
         return optional.orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     @Transactional(readOnly = true)
-    public List<?> findAll() {
+    public List<Good> findAll() {
         return goodsRepository.findAllBySeller(getCurrentUser());
+    }
+
+    public void upload(long id, int q) {
+        List<Good> goods = goodsRepository.findAllBySeller(getCurrentUser());
+
+        for (Good good : goods) {
+            if (good.getId() == id) {
+                int newQuantity = good.getQuantity() + q;
+                good.setQuantity(newQuantity);
+
+                // Сохранение обновленного элемента в базу данных
+                goodsRepository.save(good);
+                break;
+            }
+        }
     }
 
     //методы сервиса и вызов методов бд

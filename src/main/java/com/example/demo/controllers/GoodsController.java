@@ -8,6 +8,7 @@ import com.example.demo.services.GoodsService;
 import com.example.demo.utils.Category;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -16,15 +17,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/good")
-// @RequiredArgsConstructor
 public class GoodsController {
     private final GoodsService goodsService;
-
-    //посмотреть товары продавца(*)
-    //админ - блокировать продавца или один товар продавца
-    //положить в корзину, удалить из корзины, изменить количество товара в корзине,
-    //подкатегории, хештеги - поиск по ним, поиск по названиЮ, по цене фильтрация, сортировка (различная)
-    //
 
     public GoodsController(GoodsService goodsService) {
         this.goodsService = goodsService;
@@ -85,11 +79,32 @@ public class GoodsController {
         return ResponseEntity.ok(list);
     }
 
+    //возможность добавить отзыв с оценкой на товар
     @PostMapping(value = "/{id}/feedback")
     @Secured("CLIENT")
     public ResponseEntity<?> rateGood(@PathVariable long id, @RequestBody @Valid FeedBack feedBack){
-        System.out.println(feedBack);
-        goodsService.addRate(id, feedBack);
+
+        if(goodsService.addRate(id, feedBack)){
+            return showAllFeedbacksByGoodsID(id);
+        } else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Вы уже оставили отзыв для этого товара");
+    }
+
+    //возможность поменять свой отзыв - изменить текст или рейтинг
+    @PostMapping(value = "/{id}/feedback/change")
+    @Secured("CLIENT")
+    public ResponseEntity<?> changeFeed(@PathVariable long id, @RequestBody @Valid FeedBack feedBack){
+
+        goodsService.changeRate(id, feedBack);
+        return showAllFeedbacksByGoodsID(id);
+    }
+
+    //возможность удалить свой отзыв
+    @GetMapping(value = "/{id}/feedback/del")
+    @Secured("CLIENT")
+    public ResponseEntity<?> deleteFeed(@PathVariable long id){
+
+        goodsService.deleteFeedback(id);
         return showAllFeedbacksByGoodsID(id);
     }
 
@@ -132,5 +147,4 @@ public class GoodsController {
         List<DTOFeedback> list = goodsService.findAllFeedbackByRateAsc(id, rate);
         return ResponseEntity.ok(list);
     }
-
 }

@@ -38,10 +38,34 @@ public class ClientController {
         return ResponseEntity.ok(clientService.update(request));
     }
 
+    //метод добавления конкретного товара в корзину
     @ResponseBody
     @GetMapping("/{id}/add")
+    @Secured("CLIENT")
     public ResponseEntity<?> add(@PathVariable int id,
-                                 @RequestParam(required = false, defaultValue = "1") int quantity){
-        return ResponseEntity.ok(clientService.addToBasket(id, quantity));
+                                 @RequestParam(required = false, defaultValue = "1") int q){
+        return ResponseEntity.ok(clientService.addToBasket(id, q));
+    }
+
+    @ResponseBody
+    @GetMapping("/{id}/del")
+    @Secured("CLIENT")
+    public ResponseEntity<?> del(@PathVariable int id,
+                                 @RequestParam(required = false, defaultValue = "1") int q){
+        return ResponseEntity.ok(clientService.delFromBasket(id, q));
+    }
+
+    @ResponseBody
+    @GetMapping("/basket")
+    @Secured("CLIENT")
+    public ResponseEntity<?> showBasket(){
+        return ResponseEntity.ok(clientService.showBasket());
+    }
+
+    @ResponseBody
+    @GetMapping("/basket/clear")
+    @Secured("CLIENT")
+    public ResponseEntity<?> clearBasket(){
+        return ResponseEntity.ok(clientService.clearBasket());
     }
 }

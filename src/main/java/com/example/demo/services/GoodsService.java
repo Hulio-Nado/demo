@@ -10,6 +10,7 @@ import com.example.demo.repo.FeedBackRepository;
 import com.example.demo.repo.GoodsRepository;
 import com.example.demo.repo.SellerRepository;
 import com.example.demo.utils.Category;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,6 +37,7 @@ public class GoodsService {
         this.sellerRepository = sellerRepository;
     }
 
+    //метод поиска всех товаров и вывод с пагинацией
     public Page<DTOGood> findAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Good> resultPage = goodsRepository.findAll(pageable);
@@ -43,6 +45,7 @@ public class GoodsService {
         return DTOGood.convertToDTOPage(resultPage);
     }
 
+    //метод поиска всех товаров и вывод с пагинацией по рейтингу, начиная с лучшего
     public Page<DTOGood> findAllByRate(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Good> resultPage = goodsRepository.findAllByOrderByRateDesc(pageable);
@@ -50,6 +53,7 @@ public class GoodsService {
         return DTOGood.convertToDTOPage(resultPage);
     }
 
+    //метод поиска всех товаров и вывод с пагинацией по рейтингу, начиная с худшего
     public Page<DTOGood> findAllByRateRev(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Good> resultPage = goodsRepository.findAllByOrderByRateAsc(pageable);
@@ -57,6 +61,7 @@ public class GoodsService {
         return DTOGood.convertToDTOPage(resultPage);
     }
 
+    //метод поиска всех товаров и вывод с пагинацией по количествву оценок
     public Page<DTOGood> findAllByCount(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Good> resultPage = goodsRepository.findAllByOrderByCountRatesDesc(pageable);
@@ -64,23 +69,27 @@ public class GoodsService {
         return DTOGood.convertToDTOPage(resultPage);
     }
 
+    //метод поиска товара по ID, с возвращением ДТО
     public DTOGood findByID(long id) {
         Optional<Good> optional = goodsRepository.findById(id);
         Good good = optional.orElseThrow(() -> new RuntimeException("Товар с данным ID не найден"));
         return DTOGood.convertToDTO(good);
     }
 
-    public Good findByID2(long id) {
+    //метод поиска товара по ID, с возвращением товара
+    public Good findGoodByID(long id) {
         Optional<Good> optional = goodsRepository.findById(id);
         Good good = optional.orElseThrow(() -> new RuntimeException("Товар с данным ID не найден"));
         return good;
     }
 
+    //метод поиска товара по категории, с возвращением ДТО
     public List<DTOGood> findByCategory(Category category) {
         List<Good> list = goodsRepository.findByCategory(category);
         return DTOGood.convertToDTOList(list);
     }
 
+    //метод поиска товара по названию, с возвращением ДТО
     public List<DTOGood> findByName(String name) {
         System.out.println(name);
         List<Good> list = goodsRepository.findByName(name);
@@ -88,6 +97,7 @@ public class GoodsService {
         return DTOGood.convertToDTOList(list);
     }
 
+    //метод сохранения товара в БД с установкой начальных значений рейтинга
     @Transactional
     public void save(Good good) {
         good.setRate(0);
@@ -96,6 +106,7 @@ public class GoodsService {
         goodsRepository.save(good);
     }
 
+    //метод обновления информации о товаре
     @Transactional
     public void update(long id, DTOGood goodToUpdate) {
         Optional<Good> optional = goodsRepository.findById(id);
@@ -105,46 +116,126 @@ public class GoodsService {
         good.setCategory(goodToUpdate.getCategory());
         goodsRepository.save(good);
     }
-    //goodmapper подумать
 
+    //метод удаления товара по ID из БД
     @Transactional
     public void delete(long id) {
         goodsRepository.deleteById(id);
     }
 
+    //метод добавления отзыва к товару
     @Transactional
-    public void addRate(long id, FeedBack feedBack) {
+    public boolean addRate(long id, FeedBack feedBack) {
         Client client = clientService.getCurrentUser();
         Good good = goodsRepository.findById(id).
                 orElseThrow(() -> new RuntimeException("Товар с данным ID не найден"));
         Seller seller = good.getSeller();
+
+        // Проверяем, оставил ли клиент уже отзыв для данного товара
+        boolean hasFeedback = feedBackRepository.existsByGoodIdAndClientId(id, client.getId());
+
+        if (hasFeedback) {
+            // Если клиент уже оставил отзыв, вернуть ошибку или информацию о том, что он уже оставил отзыв
+            return false;
+        }
+
+        //сохранеям данные по товару и по клиенту в отзыв в базу данных
         feedBack.setGood(good);
         feedBack.setClient(client);
 
+        //перерасчет рейтинга
         calculate(seller, feedBack, good);
+        return true;
     }
 
+    //метод изменения существующего отзыва от клиента с перерасчетом рейтинга товара и продавца
+    @Transactional
+    public void changeRate(long id, FeedBack feedBack) {
+        Client client = clientService.getCurrentUser();
+        Good good = goodsRepository.findById(id).
+                orElseThrow(() -> new RuntimeException("Товар с данным ID не найден"));
+        Seller seller = good.getSeller();
+        Optional<FeedBack> optional = feedBackRepository.findByClientId(client.getId());
+        int oldRate = optional.get().getRate();
+        feedBackRepository.delete(optional.get());
+
+        //сохранеям данные по товару и по клиенту в отзыв в базу данных
+        feedBack.setGood(good);
+        feedBack.setClient(client);
+
+        //перерасчет рейтинга
+        calculate(seller, feedBack, good, oldRate);
+    }
+
+    //метод удаления отзыва клиента с перерасчетом рейтинга товара и продавца
+    @Transactional
+    public void deleteFeedback(long goodsId) {
+        Client client = clientService.getCurrentUser();
+        Good good = goodsRepository.findById(goodsId).
+                orElseThrow(() -> new RuntimeException("Товар с данным ID не найден"));
+        Seller seller = good.getSeller();
+        FeedBack feedBack = feedBackRepository.findByClientId(client.getId())
+                .orElseThrow(() -> new RuntimeException("Отзыв не найден"));
+        int oldRate = feedBack.getRate();
+        feedBackRepository.delete(feedBack);
+
+        calculate(seller, good, oldRate);
+    }
+
+    //метод подсчета рейтинга при добавлении нового отзыва
     @Transactional
     public void calculate(Seller seller, FeedBack feedBack, Good good){
-        double sum = seller.getRate()*seller.getCountRates();
-        sum += feedBack.getRate();
+        double sellerSum = seller.getRate()*seller.getCountRates();
+        sellerSum += feedBack.getRate();
         seller.setCountRates(seller.getCountRates() + 1);
-        seller.setRate(sum / seller.getCountRates());
+        seller.setRate(sellerSum / seller.getCountRates());
         sellerRepository.save(seller);
 
-        double sum1 = good.getRate()*good.getCountRates();
-        sum1 += feedBack.getRate();
+        double goodsSum = good.getRate()*good.getCountRates();
+        goodsSum += feedBack.getRate();
         good.setCountRates(good.getCountRates() + 1);
-        good.setRate(sum1 / good.getCountRates());
+        good.setRate(goodsSum / good.getCountRates());
         goodsRepository.save(good);
         feedBackRepository.save(feedBack);
     }
 
+    //метод подсчета рейтинга при удалении одного из отзывов
+    @Transactional
+    public void calculate(Seller seller, Good good, int oldRate){
+        double sum = seller.getRate()*seller.getCountRates();
+        sum -= oldRate;
+        seller.setCountRates(seller.getCountRates() - 1);
+        seller.setRate(sum / seller.getCountRates());
+        sellerRepository.save(seller);
+
+        double sum1 = good.getRate()*good.getCountRates();
+        sum1 -= oldRate;
+        good.setCountRates(good.getCountRates() - 1);
+        good.setRate(sum1 / good.getCountRates());
+        goodsRepository.save(good);
+    }
+
+    //метод подсчета рейтинга при изменении одного из отзывов
+    @Transactional
+    public void calculate(Seller seller, FeedBack newFeedBack, Good good, int oldRate){
+        double sellerSum = seller.getRate()*seller.getCountRates();
+        sellerSum += newFeedBack.getRate() - oldRate;
+        seller.setRate(sellerSum / seller.getCountRates());
+        sellerRepository.save(seller);
+
+        double goodsSum = good.getRate()*good.getCountRates();
+        goodsSum += newFeedBack.getRate() - oldRate;
+        good.setRate(goodsSum / good.getCountRates());
+        goodsRepository.save(good);
+        feedBackRepository.save(newFeedBack);
+    }
+
+    //метод получения всех отзывов по товару по его ID
     public List<DTOFeedback> findAllFeedbacks(long id) {
         Optional<Good> optional = goodsRepository.findById(id);
         Good good = optional.orElseThrow(() -> new RuntimeException("Товар с данным ID не найден"));
-        List<DTOFeedback> list = DTOFeedback.convertToDTOList(good.getListFeedbacks());
-        return list;
+
+        return DTOFeedback.convertToDTOList(good.getListFeedbacks());
     }
 
     //вывод отзывов одного товара по айди начиная с ближней к нам даты
@@ -153,7 +244,6 @@ public class GoodsService {
         if(rate != 0) {
             feeds = feeds.stream().filter(s -> s.getRate() == rate).toList();
         }
-
         return DTOFeedback.convertToDTOList(feeds);
     }
 
@@ -163,7 +253,6 @@ public class GoodsService {
         if(rate != 0) {
             feeds = feeds.stream().filter(s -> s.getRate() == rate).toList();
         }
-
         return DTOFeedback.convertToDTOList(feeds);
     }
 
@@ -174,7 +263,6 @@ public class GoodsService {
         if(rate != 0) {
             feeds = feeds.stream().filter(s -> s.getRate() == rate).toList();
         }
-
         return DTOFeedback.convertToDTOList(feeds);
     }
 
@@ -184,7 +272,6 @@ public class GoodsService {
         if(rate != 0) {
             feeds = feeds.stream().filter(s -> s.getRate() == rate).toList();
         }
-
         return DTOFeedback.convertToDTOList(feeds);
     }
 }

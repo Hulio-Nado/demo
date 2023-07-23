@@ -43,7 +43,7 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize ->
                         authorize.requestMatchers("/login", "/client/reg",
-                                        "/seller/reg", "/good/all")
+                                        "/seller/reg", "/good/all", "/good/all/rate")
                                 .permitAll().anyRequest().authenticated())
                 .formLogin(formlogin -> formlogin.loginProcessingUrl("/process_login")
                         .defaultSuccessUrl("/good/all", true)

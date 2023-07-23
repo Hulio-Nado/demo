@@ -6,6 +6,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface FeedBackRepository extends CrudRepository<FeedBack, Long> {
@@ -16,4 +17,8 @@ public interface FeedBackRepository extends CrudRepository<FeedBack, Long> {
     List<FeedBack> findByGoodIdOrderByCreatedDesc(long id);
 
     List<FeedBack> findByGoodIdOrderByCreatedAsc(long id);
+
+    boolean existsByGoodIdAndClientId(long id, long id1);
+
+    Optional<FeedBack> findByClientId(long id);
 }

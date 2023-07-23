@@ -16,11 +16,13 @@ public class Seller{
     @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    @JsonIgnore
     @Column
     private String username;
     @JsonIgnore
     @Column
     private String password;
+    @JsonIgnore
     @Column
     private final String role = "ROLE_SELLER";
     @Column

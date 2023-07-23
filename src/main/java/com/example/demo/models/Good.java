@@ -46,35 +46,32 @@ public class Good {
     @Enumerated(value = EnumType.STRING)
     private Category category;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "good_id")
     private List<Charackteristics> list;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "good")
     @Cascade(value = org.hibernate.annotations.CascadeType.ALL)
     private List<FeedBack> listFeedbacks;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "good")
     private List<ClientGood> clients;
 
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "seller_id", referencedColumnName = "id")
     private Seller seller;
 
     @Override
     public String toString() {
-        return "Good{" +
+        return "Goods{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", price=" + price +
-                ", rate=" + rate +
-                ", countRates=" + countRates +
-                ", quantity=" + quantity +
                 ", category=" + category +
-                ", list=" + list +
                 ", listFeedbacks=" + listFeedbacks +
-                ", clients=" + clients +
-                ", seller=" + seller +
+                ", seller=" + seller.getUsername() +
                 '}';
     }
 }

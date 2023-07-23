@@ -17,11 +17,12 @@ public interface GoodsRepository extends JpaRepository<Good, Long> {
 
     Page<Good> findAll(Pageable pageable);
 
-    List<?> findAllBySeller(Seller currentUser);
+    List<Good> findAllBySeller(Seller currentUser);
 
     Page<Good> findAllByOrderByRateDesc(Pageable pageable);
 
     Page<Good> findAllByOrderByRateAsc(Pageable pageable);
 
     Page<Good> findAllByOrderByCountRatesDesc(Pageable pageable);
+
 }
